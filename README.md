@@ -169,16 +169,9 @@ level has tab-completion.
 
 ### `/npc set` properties
 
-**Common:** `cooldown <ms>`, `lookat <on|off>`, `permission <node|clear>`, `interactrange <blocks>`.
-
-| Type | Properties |
-|---|---|
-| **Player** | `name`, `skin <player>`, `skinurl <url>`, `skinuuid <uuid>`, `mirror <on\|off>` |
-| **Entity** | `entitytype <type>`, `baby <on\|off>` |
-| **Armor Stand** | `invisible`, `arms`, `small`, `baseplate`, `marker`, `emote <type>` |
-| **Floating Head** | `texture`, `rotate`, `float`, `small`, `rotatespeed`, `floatamplitude`, `floatperiod` |
-| **Item Display** | `item`, `scale`, `billboard`, `transform`, `glow`, `brightness`, `shadowradius`, `shadowstrength`, `viewrange` |
-| **ModelEngine** | `model`, `idleanim`, `interactanim` |
+`set` changes a property on your selected NPC. The common ones are `cooldown`, `lookat`,
+`permission`, and `interactrange`; each type also has its own fields. **See
+[NPC types](#npc-types) for every type's settings — their accepted values and what each one does.**
 
 ### Permissions
 
@@ -191,21 +184,101 @@ All nodes default to `op`. The selection stick and every mutation command requir
 
 ---
 
-## NPC types
-
 Create with `/npc create <type> <id>`, then edit in the GUI (`/npc edit`) or with `/npc set …`.
-Every type supports holograms, actions, particles, look-at-player, view permissions, clone/rename.
+Each type has its **own settings** (below) on top of the shared ones. All values are set with
+`/npc set <field> <value>` on your selected NPC and saved instantly.
 
-- **Player** — real-looking player NPC. Skins by name / URL / **UUID**, plus **mirror-skin** (each
-  viewer sees their own skin). Full movement.
-- **Entity** — any vanilla mob (`/npc set entitytype <type>`, `baby on`).
-- **Armor Stand** — flags (`invisible`, `arms`, `small`, `baseplate`, `marker`), equipment
-  (`/npc equip`), pose (`/npc pose`), and **emotes** (`/npc set emote <wave|nod|shake|dance|bow>`).
-- **Floating Head** — floating, optionally spinning player head (`rotate`, `float`, and tuning).
-- **Item Display** — a Display entity showing any item with `scale`, `billboard`, `glow`,
-  `brightness`, `viewrange`, and more.
-- **ModelEngine** — custom 3D model via ModelEngine R4 (`model`, `idleanim`, `interactanim`).
-  Requires ModelEngine; auto-disabled on Folia.
+### Settings every type has
+
+| `/npc set …` | Values | What it does |
+|---|---|---|
+| `cooldown <ms>` | milliseconds (e.g. `500`) | Minimum time between clicks from the same player. `0` = no cooldown. |
+| `lookat <on\|off>` | `on` / `off` | The NPC's head tracks the nearest player (up/down too). |
+| `permission <node\|clear>` | a permission node, or `clear` | Only players with the node can **see and interact** with the NPC. `clear` removes it. |
+| `interactrange <blocks>` | blocks (`0` = off) | Distance at which `approach` / `leave` actions fire. |
+
+Every type can also have **holograms**, **particles**, and **click/proximity actions**. Player,
+Entity, and ModelEngine additionally support **movement** (paths / roaming / motion capture).
+
+### Player
+
+A real-looking player NPC.
+
+| `/npc set …` | Values | What it does |
+|---|---|---|
+| `name <text>` | any text (`&` colors) | The name shown above the NPC. |
+| `skin <player>` | a player name | Use that player's current skin. |
+| `skinurl <url>` | a texture URL | Use a skin from a Minecraft texture URL. |
+| `skinuuid <uuid>` | a player UUID | Use the skin of that account by UUID. |
+| `mirror <on\|off>` | `on` / `off` | Each viewer sees the NPC wearing **their own** skin (doppelgänger). Overrides the skin above. |
+
+### Entity
+
+Any vanilla mob, rendered as a packet entity.
+
+| `/npc set …` | Values | What it does |
+|---|---|---|
+| `entitytype <type>` | a mob id (`zombie`, `villager`, `warden`…) | Which mob to render. |
+| `baby <on\|off>` | `on` / `off` | Baby variant, for mobs that have one. |
+
+### Armor Stand
+
+Great for statues, posed scenes, and decorations.
+
+| `/npc set …` | Values | What it does |
+|---|---|---|
+| `invisible <on\|off>` | `on` / `off` | Hide the stand body (show only equipment / pose). |
+| `arms <on\|off>` | `on` / `off` | Show arms — required to hold items in the hands. |
+| `small <on\|off>` | `on` / `off` | Small armor stand. |
+| `baseplate <on\|off>` | `on` / `off` | Show the base plate under the stand. |
+| `marker <on\|off>` | `on` / `off` | Marker mode: no hitbox, zero size — for decorations you don't want clickable. |
+| `emote <type>` | `wave` `nod` `shake` `dance` `bow` `none` | Looping procedural animation. |
+
+Plus:
+
+- **Equipment** — `/npc equip <slot> [hand\|clear]` — slots: `head`, `chest`, `legs`, `feet`, `mainhand`, `offhand`. With no argument it equips the item in your hand; `clear` empties the slot.
+- **Pose** — `/npc pose <part> <x> <y> <z>` (degrees) — parts: `head`, `body`, `leftarm`, `rightarm`, `leftleg`, `rightleg`.
+
+### Floating Head
+
+A floating, optionally spinning player head.
+
+| `/npc set …` | Values | What it does |
+|---|---|---|
+| `texture <player\|url>` | player name or texture URL | The head's skin. |
+| `rotate <on\|off>` | `on` / `off` | Spin the head continuously. |
+| `rotatespeed <degrees>` | degrees per tick (e.g. `5`) | How fast it spins. |
+| `float <on\|off>` | `on` / `off` | Bob up and down. |
+| `floatamplitude <blocks>` | blocks (e.g. `0.2`) | How far it bobs. |
+| `floatperiod <ticks>` | ticks ≥ 1 (e.g. `40`) | How long one bob cycle takes (higher = slower). |
+| `small <on\|off>` | `on` / `off` | Smaller head. |
+
+### Item Display
+
+Shows any item via a Display entity (1.19.4+) — floating loot, signs, animated props.
+
+| `/npc set …` | Values | What it does |
+|---|---|---|
+| `item` | *(hold an item)* | Sets the displayed item to the one in your main hand. |
+| `scale <n>` or `<x,y,z>` | a number, or three comma-separated numbers | Uniform or per-axis size (e.g. `2` or `1,2,1`). |
+| `billboard <mode>` | `fixed` `vertical` `horizontal` `center` | How it faces the camera. `center` always faces the player; `fixed` keeps a locked rotation. |
+| `transform <mode>` | `none` `thirdperson_left` `thirdperson_right` `firstperson_left` `firstperson_right` `head` `gui` `ground` `fixed` | The item's display pose (same contexts items use in-hand / in GUIs). |
+| `glow <hex\|clear>` | a hex color like `FF0000`, or `clear` | Glowing outline in that color; `clear` removes it. |
+| `brightness <0-15\|clear>` | `0`–`15`, or `clear` | Force a light level (`15` = fullbright); `clear` uses world lighting. |
+| `shadowradius <n>` | blocks (`0` = no shadow) | Size of the ground shadow. |
+| `shadowstrength <n>` | number | How dark the shadow is. |
+| `viewrange <n>` | multiplier (e.g. `1.0`) | How far away the display stays rendered. |
+
+### ModelEngine
+
+A custom 3D model driven by **ModelEngine R4** (the only type that uses a real, invisible base
+entity). Requires ModelEngine; **auto-disabled on Folia**.
+
+| `/npc set …` | Values | What it does |
+|---|---|---|
+| `model <id>` | a ModelEngine model id | Which model to display. |
+| `idleanim <name\|clear>` | animation name, or `clear` | Animation played while idle. |
+| `interactanim <name\|clear>` | animation name, or `clear` | Animation played when the NPC is clicked. |
 
 ---
 
