@@ -235,6 +235,9 @@ marker: off            # on = no hitbox + zero size (decoration only)
 emote: none            # looping animation: wave | nod | shake | dance | bow | none
 ```
 
+> **Emotes** are simple procedural loops applied on top of your static pose (so a posed statue can
+> still wave). The arm emotes — `wave` and `dance` — only show with `arms: on`.
+
 Two extra commands (not `set` fields):
 
 ```
